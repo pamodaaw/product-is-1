@@ -290,15 +290,14 @@
 
                                 <zip destfile="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps/shindig.war" basedir="${tempdir}/shindig" />
 
-                                <!-- #############TESTING ########### -->
-                                <unzip dest="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps/api#dispatcher">
+                                <!-- Explode the api.war -->
+                                <unzip dest="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps/api">
                                     <fileset dir="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps">
-                                        <include name="api#dispatcher.war" />
+                                        <include name="api.war" />
                                     </fileset>
                                 </unzip>
-                                <delete file="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps/api#dispatcher.war" />
+                                <delete file="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps/api.war" />
 
-                                <!-- ###########TEST END############-->
                                 <!-- Add org.wso2.carbon.identity.entitlement.policy.finder.registry.RegistryPolicyHandler to IS -->
 
                                 <replace file="../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/registry.xml" token="&lt;!--&lt;handler class=&quot;org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler&quot;&gt;" value="${registryPolicyHandler}" />
@@ -312,8 +311,8 @@
                                 <copy todir="target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/client/modules" overwrite="false">
                                     <fileset dir="${tempdir}/wso2is-${project.version}/repository/deployment/client/modules">
                                     </fileset>
-                                </copy>
-                                <copy todir="target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity" overwrite="false">
+                                </copy><copy todir="target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity"
+                                       overwrite="false">
                                     <fileset dir="${basedir}/../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity/">
                                     </fileset>
                                 </copy>
