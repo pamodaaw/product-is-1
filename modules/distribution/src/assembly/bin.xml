@@ -353,6 +353,17 @@
             </includes>
         </fileSet>
 
+        <!-- copy api#dispatcher.war-->
+        <fileSet>
+            <directory>
+                ../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/deployment/server/webapps</outputDirectory>
+            <includes>
+                <include>api#dispatcher/</include>
+            </includes>
+        </fileSet>
+
         <!--copy the oauth2 grant type extensions -->
         <fileSet>
             <directory>../oauth2-grant-types/target/oauth2GrantCopied/jar</directory>
@@ -1140,15 +1151,5 @@
             <fileMode>644</fileMode>
         </file>
 
-        <!--REST API dispatcher-->
-        <fileSet>
-            <directory>
-                ../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/webapps
-            </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/repository/deployment/server/webapps</outputDirectory>
-            <includes>
-                <include>api#dispatcher.war</include>
-            </includes>
-        </fileSet>
     </files>
 </assembly>
