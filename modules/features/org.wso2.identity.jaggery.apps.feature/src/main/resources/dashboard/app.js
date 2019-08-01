@@ -11,8 +11,6 @@ var server = require('/modules/server.js');
 //var user = require('/modules/user.js');
 //user.init(configs);
 
-
-
 function init(){
 	var path = "ui-components.json";
 	var file = new File(path);
@@ -58,6 +56,5 @@ function init(){
 	});
 
 }
-
 
 init();

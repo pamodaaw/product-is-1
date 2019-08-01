@@ -179,10 +179,6 @@
         });
     });
 
-
-
-
-
     function checkAuthentication(element) {
 
         var str = "authenticationHandler.jag";
@@ -201,12 +197,7 @@
             .always(function () {
 
             });
-
-
     }
 </script>
-
-
-
 </body>
 </html>
