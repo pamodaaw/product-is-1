@@ -14,36 +14,30 @@
  * limitations under the License.
  */
 
-package org.wso2.identity.integration.test.rest.api.user.challenge.v1;
+package org.wso2.identity.integration.test.rest.api.server.claim.management.v1;
 
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHeaders;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.wso2.carbon.automation.engine.context.TestUserMode;
-import org.wso2.identity.integration.test.rest.api.user.common.RESTAPIUserTestBase;
+import org.wso2.identity.integration.test.rest.api.server.common.RESTAPIServerTestBase;
 
 import java.io.IOException;
 
-import static io.restassured.RestAssured.given;
+/**
+ * Base test class for Claim Management REST APIs.
+ */
+public class ClaimManagementTestBase extends RESTAPIServerTestBase {
 
-public class UserChallengeTest extends RESTAPIUserTestBase {
-
-    static final String API_DEFINITION_NAME = "challenge.yaml";
+    private static final String API_DEFINITION_NAME = "claim-management.yaml";
     static final String API_VERSION = "v1";
-    static String API_PACKAGE_NAME = "org.wso2.carbon.identity.rest.api.user.challenge.v1";
+    private static String API_PACKAGE_NAME = "org.wso2.carbon.identity.rest.api.server.claim.management.v1";
 
-    public static final String CHALLENGES_ENDPOINT_URI = "/%s/challenges";
-    public static final String CHALLENGE_ANSWERS_ENDPOINT_URI = "/%s/challenge-answers";
-
-    protected String userChallengesEndpointURI;
-    protected String userChallengeAnswerEndpointURI;
-    protected String userChallengeAnswersEndpointURI;
+    public static final String CLAIM_DIALECTS_ENDPOINT_URI = "/claim-dialects";
+    public static final String LOCAL_CLAIMS_ENDPOINT_URI = "/local/claims";
+    public static final String CLAIMS_ENDPOINT_URI = "/claims";
 
     protected static String swaggerDefinition;
 
@@ -54,13 +48,6 @@ public class UserChallengeTest extends RESTAPIUserTestBase {
             Assert.fail(String.format("Unable to read the swagger definition %s from %s", API_DEFINITION_NAME,
                     API_PACKAGE_NAME), e);
         }
-    }
-
-    void initUrls(String pathParam) {
-
-        this.userChallengesEndpointURI = String.format(CHALLENGES_ENDPOINT_URI, pathParam);
-        this.userChallengeAnswersEndpointURI = String.format(CHALLENGE_ANSWERS_ENDPOINT_URI, pathParam);
-        this.userChallengeAnswerEndpointURI = this.userChallengeAnswersEndpointURI + "/%s";
     }
 
     @AfterClass(alwaysRun = true)
@@ -80,5 +67,4 @@ public class UserChallengeTest extends RESTAPIUserTestBase {
 
         RestAssured.basePath = StringUtils.EMPTY;
     }
-
 }
