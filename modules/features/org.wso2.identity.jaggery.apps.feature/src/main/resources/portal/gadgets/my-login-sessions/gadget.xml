@@ -23,7 +23,7 @@
     <Content type="html" view="default">
         <![CDATA[
         <link rel="stylesheet" type="text/css" href="js/ui/css/main.css">
-        <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jquery-ui-1.10.3.custom.min.css">
+        <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jquery-ui-1.12.1.custom.min.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jqueryui-themeroller.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/dialog.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/bootstrap.css">
@@ -74,7 +74,7 @@
         <link rel="stylesheet" type="text/css" href="js/ui/css/bootstrap-missing.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/bootstrap-theme.min.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/dialog.css">
-        <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jquery-ui-1.10.3.custom.min.css">
+        <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jquery-ui-1.12.1.custom.min.css">
         <link rel="stylesheet" type="text/css" href="js/ui/css/smoothness/jqueryui-themeroller.css">
 
         <script>
@@ -88,7 +88,7 @@
             function terminate(sessionId) {
                 $.ajax({
                     type:"GET",
-                    url:PROXY_CONTEXT_PATH + "/portal/gadgets/my-login-sessions/server.jag?sessionId=" + sessionId
+                    url:PROXY_CONTEXT_PATH + "/portal/gadgets/my-login-sessions/server-new.jag?sessionId=" + sessionId
 
                 }).done(function (data) {
                     var options = {"title" : "Terminate Session", "content":data,buttons:[{
@@ -174,7 +174,7 @@
                     cookie = obj.cookie;
                     userName = obj.user;
                     if (cookie != null) {
-                        var str = PROXY_CONTEXT_PATH + "/portal/gadgets/my-login-sessions/index.jag";
+                        var str = PROXY_CONTEXT_PATH + "/portal/gadgets/my-login-sessions/index-new.jag";
 
                         $.ajax({
                             type:"POST",
