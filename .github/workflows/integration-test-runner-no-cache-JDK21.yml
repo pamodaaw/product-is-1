@@ -1,0 +1,168 @@
+name: Integration Test Runner (Cache Disabled)
+
+on:
+  workflow_dispatch:
+    inputs:
+      jdk:
+        description: "Enter Java version (ex: 21)"
+        default: "21"
+        required: true
+
+env:
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3 -Djdk.util.zip.disableZip64ExtraFieldValidation=true -XX:+HeapDumpOnOutOfMemoryError
+
+jobs:
+  build-product-is:
+    name: Build WSO2 IS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: false
+
+      - name: Build init
+        run: echo "CURRENT_MONTH=$(date +%Y-%m)" >> ${GITHUB_ENV}
+
+      - name: Cache maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2
+            !~/.m2/repository/org/wso2/is/wso2is
+          key: ${{ runner.os }}-no-cache-runner-${{ env.CURRENT_MONTH }}
+
+      - name: Disable all caches in deployment.toml source
+        run: |
+          DEPLOYMENT_TOML="modules/distribution/src/main/resources/repository/conf/deployment.toml"
+          if [ ! -f "$DEPLOYMENT_TOML" ]; then
+            echo "ERROR: deployment.toml not found at $DEPLOYMENT_TOML"
+            exit 1
+          fi
+          cat .github/scripts/cache-disable.toml >> "$DEPLOYMENT_TOML"
+          echo "Cache config appended to source deployment.toml"
+          tail -60 "$DEPLOYMENT_TOML"
+
+      - name: Build product-is (skip tests)
+        env:
+          JAVA_TOOL_OPTIONS: "-Djdk.util.zip.disableZip64ExtraFieldValidation=true -Djdk.nio.zipfs.allowDotZipEntry=true"
+        run: |
+          mvn clean install -Dmaven.test.skip=true | tee mvn-build.log
+
+      - name: Upload IS pack as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wso2is-no-cache-pack
+          path: "**/target/wso2is-*.zip"
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Archive build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-is-mvn-build-log
+          path: mvn-build.log
+          if-no-files-found: warn
+
+  run-integration-tests:
+    name: Run Integration Tests (Cache Disabled)
+    needs: build-product-is
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner_id: 1
+            tests: "is-tests-default-configuration,is-test-rest-api,is-test-webhooks,is-tests-scim2,is-test-adaptive-authentication"
+          - runner_id: 2
+            tests: "is-test-adaptive-authentication-nashorn,is-test-adaptive-authentication-nashorn-with-restart,is-tests-default-configuration-ldap,is-tests-uuid-user-store,is-tests-federation,is-tests-federation-restart"
+          - runner_id: 3
+            tests: "is-tests-jdbc-userstore,is-tests-read-only-userstore,is-tests-oauth-jwt-token-gen-enabled,is-tests-email-username,is-tests-saml-query-profile,is-tests-default-encryption"
+          - runner_id: 4
+            tests: "is-tests-with-individual-configuration-changes"
+
+    env:
+      JAVA_TOOL_OPTIONS: "-Djdk.util.zip.disableZip64ExtraFieldValidation=true -Djdk.nio.zipfs.allowDotZipEntry=true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Echo java 21 home
+        run: echo "J21HOME=$JAVA_HOME" >> ${GITHUB_ENV}
+
+      - name: Build init
+        run: echo "CURRENT_MONTH=$(date +%Y-%m)" >> ${GITHUB_ENV}
+
+      - name: Cache maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2
+            !~/.m2/repository/org/wso2/is/wso2is
+          key: ${{ runner.os }}-no-cache-runner-${{ env.CURRENT_MONTH }}
+
+      - name: Download IS pack
+        uses: actions/download-artifact@v4
+        with:
+          name: wso2is-no-cache-pack
+          path: downloaded-pack
+
+      - name: Place IS pack where test runner expects it
+        run: |
+          IS_ZIP=$(find downloaded-pack -name "wso2is-*.zip" | head -n 1)
+          TARGET_DIR="modules/distribution/target"
+          mkdir -p "$TARGET_DIR"
+          cp "$IS_ZIP" "$TARGET_DIR/"
+          echo "Placed IS pack: $TARGET_DIR/$(basename $IS_ZIP)"
+
+      - name: Run integration tests - runner ${{ matrix.runner_id }}
+        env:
+          JAVA_21_HOME: ${{ env.J21HOME }}
+          JDK_VERSION: ${{ github.event.inputs.jdk }}
+        run: |
+          cd modules/integration
+          mvn clean install \
+            -P ${{ matrix.tests }} \
+            -Dmaven.test.failure.ignore=true \
+            -fae \
+            | tee ../../mvn-test-${{ matrix.runner_id }}.log
+
+      - name: Archive test run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mvn-test-log-${{ matrix.runner_id }}
+          path: mvn-test-${{ matrix.runner_id }}.log
+          if-no-files-found: warn
+
+      - name: Archive surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report-${{ matrix.runner_id }}
+          path: "**/surefire-reports"
+          if-no-files-found: warn
+
+      - name: Archive heap dump
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heap-dump-${{ matrix.runner_id }}
+          path: "**/*.hprof"
+          if-no-files-found: ignore

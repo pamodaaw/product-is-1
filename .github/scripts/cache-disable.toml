@@ -1,0 +1,61 @@
+
+# ---- All caches disabled by CI (integration-test-runner-no-cache) ----
+
+[cache.framework_session_context_cache]
+enable = false
+
+[cache.authentication_context_cache]
+enable = false
+
+[cache.authentication_request_cache]
+enable = false
+
+[cache.authentication_result_cache]
+enable = false
+
+[cache.app_info_cache]
+enable = false
+
+[cache.authorization_grant_cache]
+enable = false
+
+[cache.oauth_cache]
+enable = false
+
+[cache.oauth_scope_cache]
+enable = false
+
+[cache.oauth_session_data_cache]
+enable = false
+
+[cache.saml_sso_participant_cache]
+enable = false
+
+[cache.saml_sso_session_index_cache]
+enable = false
+
+[cache.saml_sso_session_data_cache]
+enable = false
+
+[cache.service_provider_cache]
+enable = false
+
+[authorization_manager.properties]
+AuthorizationCacheEnabled = false
+
+[[cache_config.cache_manager]]
+name = "IdentityClaimMetadataMgtCacheManager"
+
+[[cache_config.cache_manager.cache]]
+name = "LocalClaimCache"
+enable = false
+
+[[cache_config.cache_manager.cache]]
+name = "ExternalClaimCache"
+enable = false
+
+[[cache_config.cache_manager.cache]]
+name = "ClaimDialectCache"
+enable = false
+
+# ---- End cache-disabling config ----
